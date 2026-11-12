@@ -21,6 +21,7 @@ import {
 
 import { db } from "../../firebase/firebase";
 import "./CoursePages.css";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -39,6 +40,8 @@ function CourseDetails() {
   const { slug } = useParams();
 
   const [course, setCourse] = useState(null);
+  usePageTitle(course?.title ? `${course.title} Course in Telugu` : "Course");
+
   const [classes, setClasses] = useState([]);
   const [pdfs, setPdfs] = useState([]);
   const [selectedClassId, setSelectedClassId] = useState("");

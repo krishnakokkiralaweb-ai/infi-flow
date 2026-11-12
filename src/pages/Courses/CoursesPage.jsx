@@ -11,6 +11,7 @@ import {
 
 import { db } from "../../firebase/firebase";
 import "./CoursePages.css";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const ALL_CATEGORIES = "All";
 const EASE = [0.22, 1, 0.36, 1];
@@ -67,6 +68,8 @@ const handleCardPointerMove = (event) => {
 };
 
 function CoursesPage() {
+  usePageTitle("Courses");
+
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

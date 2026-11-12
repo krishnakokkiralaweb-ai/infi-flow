@@ -1,64 +1,114 @@
 rules_version = '2';
 
-// Paste these into Firebase Console -> Firestore Database -> Rules, then Publish.
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Admin verification
     function isAdmin() {
-      return request.auth != null &&
-        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.active == true;
+      return request.auth != null
+        && exists(
+          /databases/$(database)/documents/admins/$(request.auth.uid)
+        )
+        && get(
+          /databases/$(database)/documents/admins/$(request.auth.uid)
+        ).data.active == true;
     }
 
-    // Admin records are created by hand in the Firebase Console only.
+    // Admin accounts
     match /admins/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
-      allow write: if false;
+      allow get: if request.auth != null
+        && request.auth.uid == uid;
+
+      allow list, create, update, delete: if false;
     }
 
-    match /settings/{id} {
+    // Courses: public sees only Published, admins see all
+    match /courses/{courseId} {
+      allow read: if isAdmin() || resource.data.status == "Published";
+      allow write: if isAdmin();
+    }
+
+    // Classes: public sees only Published, admins see all
+    // Publish this only after the new code is deployed.
+    match /classes/{classId} {
+      allow read: if isAdmin() || resource.data.status == "Published";
+      allow write: if isAdmin();
+    }
+
+    // PDFs: public sees only Published, admins see all
+    match /pdfs/{pdfId} {
+      allow read: if isAdmin() || resource.data.status == "Published";
+      allow write: if isAdmin();
+    }
+
+    // Projects: public sees only Published, admins see all
+    match /projects/{projectId} {
+      allow read: if isAdmin() || resource.data.status == "Published";
+      allow write: if isAdmin();
+    }
+
+    // Website settings
+    match /settings/{settingId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // Public visitors can only read published items; admins can read and write everything.
-    match /courses/{id} {
-      allow read: if isAdmin() || resource.data.status == "Published";
+    // Testimonials
+    match /testimonials/{testimonialId} {
+      allow read: if true;
       allow write: if isAdmin();
     }
 
-    match /classes/{id} {
-      allow read: if isAdmin() || resource.data.status == "Published";
-      allow write: if isAdmin();
-    }
+    // Contact enquiries
+    match /enquiries/{enquiryId} {
 
-    match /pdfs/{id} {
-      allow read: if isAdmin() || resource.data.status == "Published";
-      allow write: if isAdmin();
-    }
+      // Public users can submit contact enquiries
+      allow create: if
+        request.resource.data.keys().hasAll([
+          'name',
+          'email',
+          'phone',
+          'subject',
+          'message',
+          'status',
+          'createdAt'
+        ])
+        &&
+        request.resource.data.keys().hasOnly([
+          'name',
+          'email',
+          'phone',
+          'subject',
+          'message',
+          'status',
+          'createdAt'
+        ])
+        &&
+        request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 0
+        && request.resource.data.email.size() <= 150
+        && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() <= 20
+        && request.resource.data.subject is string
+        && request.resource.data.subject.size() > 0
+        && request.resource.data.subject.size() <= 150
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() <= 5000
+        && request.resource.data.status == 'New'
+        && request.resource.data.createdAt == request.time;
 
-    match /projects/{id} {
-      allow read: if isAdmin() || resource.data.status == "Published";
-      allow write: if isAdmin();
-    }
-
-    // Contact form: anyone can create a well-formed enquiry; only admins can read or change them.
-    match /enquiries/{id} {
-      allow create: if request.resource.data.keys().hasOnly(
-                        ['name', 'email', 'phone', 'subject', 'message', 'status', 'createdAt'])
-                    && request.resource.data.name is string
-                    && request.resource.data.name.size() > 0
-                    && request.resource.data.name.size() <= 100
-                    && request.resource.data.email is string
-                    && request.resource.data.email.size() <= 150
-                    && request.resource.data.phone is string
-                    && request.resource.data.phone.size() <= 20
-                    && request.resource.data.subject is string
-                    && request.resource.data.subject.size() <= 200
-                    && request.resource.data.message is string
-                    && request.resource.data.message.size() <= 3000
-                    && request.resource.data.status == "New"
-                    && request.resource.data.createdAt == request.time;
+      // Only authorized admins can manage enquiries
       allow read, update, delete: if isAdmin();
+    }
+
+    // Block all other collections
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

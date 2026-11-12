@@ -4,8 +4,11 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import AdminNavbar from "../components/AdminNavbar";
 import "./AdminLayout.css";
+import usePageTitle from "../../hooks/usePageTitle";
 
 function AdminLayout() {
+  usePageTitle("Admin");
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const closeSidebar = () => setSidebarOpen(false);

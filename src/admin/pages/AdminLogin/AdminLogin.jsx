@@ -4,8 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { loginAdmin } from "../../../firebase/auth";
 import { useAuth } from "../../../AuthContext";
 import "./AdminLogin.css";
+import usePageTitle from "../../../hooks/usePageTitle";
 
 function AdminLogin() {
+  usePageTitle("Admin Login");
+
   const navigate = useNavigate();
 
   const {

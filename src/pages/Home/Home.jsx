@@ -6,8 +6,11 @@ import Courses from "../../Components/Courses/Courses";
 import Contact from "../../Components/Contact/Contact";
 import Footer from "../../Components/Footer/Footer";
 import Navbar from "../../Components/Navbar/Navbar";
+import usePageTitle from "../../hooks/usePageTitle";
 
 function Home() {
+  usePageTitle();
+
   return (
     <>
     <Navbar />
