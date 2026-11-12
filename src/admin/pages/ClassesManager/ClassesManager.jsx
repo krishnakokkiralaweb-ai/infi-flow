@@ -34,10 +34,9 @@ function ClassesManager() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const fetchData = async () => {
+  // Reads data; the first state update happens after the await.
+  const loadData = async () => {
     try {
-      setLoading(true);
-      setError("");
 
       const [courseSnapshot, classSnapshot] = await Promise.all([
         getDocs(collection(db, "courses")),
@@ -65,8 +64,16 @@ function ClassesManager() {
     }
   };
 
+  // Used after save/delete: show the loader, then reload.
+  const fetchData = async () => {
+    setLoading(true);
+    setError("");
+    await loadData();
+  };
+
   useEffect(() => {
-    fetchData();
+    // Start the first load in a microtask so the effect itself sets no state.
+    Promise.resolve().then(loadData);
   }, []);
 
   const handleChange = (e) => {

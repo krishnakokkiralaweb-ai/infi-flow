@@ -85,7 +85,11 @@ function CourseDetails() {
 
         // 2. Fetch published classes belonging to this course
         const classSnapshot = await getDocs(
-          collection(db, "classes")
+          query(
+            collection(db, "classes"),
+            where("courseId", "==", matchedCourse.id),
+            where("status", "==", "Published")
+          )
         );
 
         const courseClasses = classSnapshot.docs

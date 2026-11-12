@@ -26,11 +26,6 @@ export function AuthProvider({ children }) {
         const adminRef = doc(db, "admins", currentUser.uid);
         const adminSnap = await getDoc(adminRef);
 
-        // Debug information
-        console.log("Logged-in UID:", currentUser.uid);
-        console.log("Admin document exists:", adminSnap.exists());
-        console.log("Admin active:", adminSnap.data()?.active);
-
         setIsAdmin(
           adminSnap.exists() && adminSnap.data().active === true
         );
@@ -52,6 +47,7 @@ export function AuthProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   return useContext(AuthContext);
 }

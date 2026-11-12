@@ -38,10 +38,9 @@ function ProjectsManager() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const fetchProjects = async () => {
+  // Reads data; the first state update happens after the await.
+  const loadProjects = async () => {
     try {
-      setLoading(true);
-      setError("");
 
       const snapshot = await getDocs(collection(db, "projects"));
 
@@ -59,8 +58,16 @@ function ProjectsManager() {
     }
   };
 
+  // Used after save/delete: show the loader, then reload.
+  const fetchProjects = async () => {
+    setLoading(true);
+    setError("");
+    await loadProjects();
+  };
+
   useEffect(() => {
-    fetchProjects();
+    // Start the first load in a microtask so the effect itself sets no state.
+    Promise.resolve().then(loadProjects);
   }, []);
 
   const handleChange = (e) => {
@@ -107,6 +114,13 @@ function ProjectsManager() {
       return;
     }
 
+    const trimmedProjectUrl = form.projectUrl.trim();
+
+    if (trimmedProjectUrl && !trimmedProjectUrl.toLowerCase().startsWith("https://")) {
+      setError("Project URL must start with https://");
+      return;
+    }
+
     if (!form.imageUrl && !selectedImage) {
       setError("Please select a project thumbnail image.");
       return;
@@ -141,7 +155,7 @@ function ProjectsManager() {
         category: form.category.trim(),
         imageUrl,
         imagePublicId,
-        projectUrl: form.projectUrl.trim(),
+        projectUrl: trimmedProjectUrl,
         status: form.status,
         updatedAt: serverTimestamp(),
       };

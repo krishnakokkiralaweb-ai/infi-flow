@@ -45,10 +45,9 @@ function PDFManager() {
       .sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
   }, [classes, form.courseId]);
 
-  const fetchData = async () => {
+  // Reads data; the first state update happens after the await.
+  const loadData = async () => {
     try {
-      setLoading(true);
-      setError("");
 
       const [pdfSnapshot, courseSnapshot, classSnapshot] =
         await Promise.all([
@@ -88,8 +87,16 @@ function PDFManager() {
     }
   };
 
+  // Used after save/delete: show the loader, then reload.
+  const fetchData = async () => {
+    setLoading(true);
+    setError("");
+    await loadData();
+  };
+
   useEffect(() => {
-    fetchData();
+    // Start the first load in a microtask so the effect itself sets no state.
+    Promise.resolve().then(loadData);
   }, []);
 
   const handleChange = (e) => {

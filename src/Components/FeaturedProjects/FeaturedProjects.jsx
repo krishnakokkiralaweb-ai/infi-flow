@@ -245,7 +245,7 @@ function FeaturedProjects() {
                           <span className="featured-project-chip">{category}</span>
                         )}
 
-                        {project.projectUrl && (
+                        {String(project.projectUrl || "").toLowerCase().startsWith("https://") && (
                           <a
                             className="featured-project-play"
                             href={project.projectUrl}
@@ -262,7 +262,7 @@ function FeaturedProjects() {
                         <h3>{project.title}</h3>
                         {project.description && <p>{project.description}</p>}
 
-                        {project.projectUrl && (
+                        {String(project.projectUrl || "").toLowerCase().startsWith("https://") && (
                           <a
                             className="featured-project-link"
                             href={project.projectUrl}

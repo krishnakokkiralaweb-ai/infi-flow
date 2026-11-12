@@ -17,9 +17,6 @@ const socialLinks = [
   { name: "YouTube", href: "https://youtube.com/" },
 ];
 
-const INFINITY_PATH =
-  "M200,100 C250,30 330,20 360,60 C390,100 370,160 320,170 C270,180 240,140 200,100 C160,60 130,20 80,30 C30,40 10,100 40,140 C70,180 150,170 200,100 Z";
-
 const EASE = [0.22, 1, 0.36, 1];
 
 const containerVariants = {

@@ -51,9 +51,9 @@ function CoursesManager() {
   const [success, setSuccess] = useState("");
 
   // Fetch courses from Firestore
-  const fetchCourses = async () => {
+  // Reads data; the first state update happens after the await.
+  const loadCourses = async () => {
     try {
-      setLoading(true);
 
       const snapshot = await getDocs(collection(db, "courses"));
 
@@ -71,8 +71,16 @@ function CoursesManager() {
     }
   };
 
+  // Used after save/delete: show the loader, then reload.
+  const fetchCourses = async () => {
+    setLoading(true);
+    setError("");
+    await loadCourses();
+  };
+
   useEffect(() => {
-    fetchCourses();
+    // Start the first load in a microtask so the effect itself sets no state.
+    Promise.resolve().then(loadCourses);
   }, []);
 
   // Reset form
